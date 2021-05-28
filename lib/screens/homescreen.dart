@@ -13,7 +13,11 @@ class HomeScreen extends StatelessWidget {
               Container(
                 height: MediaQuery.of(context).size.height / 8,
                 width: double.infinity,
-                color: pColor,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [pSwatch, pSwatch[500]!],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight)),
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: Padding(
