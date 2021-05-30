@@ -1,4 +1,5 @@
 import 'package:covid19_tracker/utils/constants.dart';
+import 'package:covid19_tracker/utils/services/data_fetcher.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -8,25 +9,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final boldStyle = TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold);
+  final savedCountryList = ["USA", "India", "Brazil", "France"];
 
-  final List<Map<String, dynamic>> globalDataList = [
-    {"title": "Total Confirmed", "number": "169,879,799", "color": pColor},
-    {"title": "Total Deaths", "number": "3,530,136", "color": Colors.red},
-    {"title": "Total Recovered", "number": "151,786,249", "color": Colors.black}
-  ];
+  List<Map<String, dynamic>> globalDataList = [];
 
-  List<Map<String, dynamic>> dataList = [
-    {"country": "USA", "cases": "34,035,318"},
-    {"country": "India", "cases": "27,894,800"},
-    {"country": "Brazil", "cases": "16,471,600"},
-    {"country": "France", "cases": "5,657,572"},
-    {"country": "Turkey", "cases": "5,235,978"},
-    {"country": "Russia", "cases": "5,053,748"},
-    {"country": "UK", "cases": "4,480,945"},
-    {"country": "Italy", "cases": "4,213,055"},
-    {"country": "Argentina", "cases": "3,732,263"},
-    {"country": "Germany", "cases": "3,684,672"}
-  ];
+  List<Map<String, dynamic>> dataList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -59,125 +46,147 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 16,
-                  ),
-                  Card(
-                    margin: EdgeInsets.all(10.0),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0)),
-                    elevation: 4.0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
+              FutureBuilder(
+                  future: fetchStatistics(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      var data = snapshot.data as Map<String, dynamic>;
+                      this.globalDataList =
+                          data["globalDataList"] as List<Map<String, dynamic>>;
+                      this.dataList = data["countryDataList"];
+                      return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Globally",
-                              style: TextStyle(
-                                  fontSize: 16.0, fontWeight: FontWeight.bold),
-                            ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 16,
                           ),
-                          for (var item in globalDataList)
-                            Padding(
+                          Card(
+                            margin: EdgeInsets.all(10.0),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)),
+                            elevation: 4.0,
+                            child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    item["title"],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey[600]),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Globally",
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                  Text(
-                                    item["number"],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: item["color"]),
-                                  )
+                                  for (var item in globalDataList)
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            item["title"],
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[600]),
+                                          ),
+                                          Text(
+                                            item["number"].toString(),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: item["color"]),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: Text("Confirmed", style: boldStyle),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 10.0),
-                    child: Text("Last updated on 28/05/2021 10:00 AM"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, childAspectRatio: 2),
-                      itemCount: dataList.length,
-                      itemBuilder: (context, index) => Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0)),
-                        elevation: 2.0,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10.0),
-                          onTap: () {},
-                          child: Padding(
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text("Confirmed", style: boldStyle),
+                          ),
+                          Padding(
                             padding:
-                                const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        dataList[index]['country'],
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey[600]),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            dataList.removeAt(index);
-                                          });
-                                        },
-                                        child: Icon(
-                                          Icons.cancel,
-                                          color: Colors.grey[300],
-                                          size: 16.0,
+                                const EdgeInsets.only(top: 8.0, left: 10.0),
+                            child: Text("Last updated on 28/05/2021 10:00 AM"),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2, childAspectRatio: 2),
+                              itemCount: dataList.length,
+                              itemBuilder: (context, index) => Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0)),
+                                elevation: 2.0,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0, right: 8.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                dataList[index]['name'],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[600]),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    dataList.removeAt(index);
+                                                  });
+                                                },
+                                                child: Icon(
+                                                  Icons.cancel,
+                                                  color: Colors.grey[300],
+                                                  size: 16.0,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        Text(
+                                            dataList[index]['total'].toString(),
+                                            style: TextStyle(
+                                                fontSize: 20.0,
+                                                fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                Text(dataList[index]['cases'],
-                                    style: TextStyle(
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.bold)),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
+                        ],
+                      );
+                    } else {
+                      return Container(
+                        height: MediaQuery.of(context).size.height,
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  })
             ],
           ),
         ),
