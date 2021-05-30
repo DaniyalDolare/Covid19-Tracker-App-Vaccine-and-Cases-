@@ -20,6 +20,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: pColor,
+        onPressed: () {
+          Navigator.pushNamed(context, "addCountry");
+        },
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Stack(
