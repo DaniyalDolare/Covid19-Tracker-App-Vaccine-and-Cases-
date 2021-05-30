@@ -17,7 +17,13 @@ Future<Map<String, dynamic>> fetchStatistics() async {
 
   // Get saved country list from pref else use default
   SharedPreferences pref = await SharedPreferences.getInstance();
-  List<String>? savedCountryList = pref.getStringList("savedCountry") ??
+
+  // Check if countries are saved or not
+  bool areSaved = pref.containsKey("savedCountries");
+  if (!areSaved) {
+    pref.setStringList("savedCountries", ["USA", "India", "Brazil", "France"]);
+  }
+  List<String>? savedCountryList = pref.getStringList("savedCountries") ??
       ["USA", "India", "Brazil", "France"];
 
   // Process data into required format
@@ -54,7 +60,7 @@ Future<Map<String, dynamic>> fetchStatistics() async {
   return data;
 }
 
-getCountryList() async {
+Future<List<Map<String, dynamic>>> getCountryList() async {
   // Get country list from api
   final url = Uri.https("covid-193.p.rapidapi.com", "countries");
   final headers = {
@@ -63,6 +69,20 @@ getCountryList() async {
   };
   final response = await http.get(url, headers: headers);
   final responseBody = jsonDecode(response.body);
-  final responseList = responseBody["response"] as List<dynamic>;
-  print(responseList);
+  final countries = responseBody["response"] as List<dynamic>;
+
+  // Get saved country list from pref
+  final pref = await SharedPreferences.getInstance();
+  Set<String> savedCountries = pref.getStringList("savedCountries")!.toSet();
+
+  // For countries in saved country, mark their isSaved as true else false
+  List<Map<String, dynamic>> countryList = [];
+  for (String country in countries) {
+    if (savedCountries.contains(country)) {
+      countryList.add({"name": country, "isSaved": true});
+    } else {
+      countryList.add({"name": country, "isSaved": false});
+    }
+  }
+  return countryList;
 }
