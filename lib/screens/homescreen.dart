@@ -1,5 +1,6 @@
 import 'package:covid19_tracker/utils/constants.dart';
 import 'package:covid19_tracker/utils/services/data_fetcher.dart';
+import 'package:covid19_tracker/widgets/custom_top_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,27 +24,13 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Stack(
             children: [
-              Container(
-                height: MediaQuery.of(context).size.height / 8,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [pSwatch, pSwatch[500]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight)),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 15.0, bottom: 10.0, left: 10.0),
-                    child: Text(
-                      "Dashboard",
-                      style: TextStyle(
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[50]),
-                    ),
-                  ),
+              CustomTopBar(
+                child: Text(
+                  "Dashboard",
+                  style: TextStyle(
+                      fontSize: 26.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[50]),
                 ),
               ),
               FutureBuilder(
@@ -112,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Padding(
                             padding:
                                 const EdgeInsets.only(top: 8.0, left: 10.0),
-                            child: Text("Last updated on 28/05/2021 10:00 AM"),
+                            child: Text("Last updated on ${DateTime.now()}"),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
