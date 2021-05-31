@@ -29,11 +29,14 @@ Future<Map<String, dynamic>> fetchStatistics() async {
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   // Check if countries are saved or not
+  List<String>? savedCountryList = [];
   bool areSaved = pref.containsKey("savedCountries");
   if (!areSaved) {
     pref.setStringList("savedCountries", ["USA", "India", "Brazil", "France"]);
+    savedCountryList = ["USA", "India", "Brazil", "France"];
+  } else {
+    savedCountryList = pref.getStringList("savedCountries");
   }
-  List<String>? savedCountryList = pref.getStringList("savedCountries");
 
   // Process data into required format
   List<Map<String, dynamic>> globalDataList = [
