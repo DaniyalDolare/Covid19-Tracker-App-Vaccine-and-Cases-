@@ -62,7 +62,7 @@ Future<Map<String, dynamic>> fetchStatistics() async {
   Map<String, dynamic> data = {
     "globalDataList": globalDataList,
     "allCountryDataList": allCountryDataList,
-    "savedCountryList": savedCountryList!.toSet()
+    "savedCountryList": savedCountryList
   };
 
   // Return the data
