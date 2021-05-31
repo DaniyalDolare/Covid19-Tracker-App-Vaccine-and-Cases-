@@ -12,9 +12,26 @@ class _HomeScreenState extends State<HomeScreen> {
   final boldStyle = TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold);
   final savedCountryList = ["USA", "India", "Brazil", "France"];
 
+  Future<Map<String, dynamic>>? _allData;
   List<Map<String, dynamic>> globalDataList = [];
-
+  List<Map<String, dynamic>> allCountriesDataList = [];
   List<Map<String, dynamic>> dataList = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _allData = fetchStatistics();
+    // Set state variables values
+    _allData!.then((value) {
+      this.globalDataList =
+          value["globalDataList"] as List<Map<String, dynamic>>;
+      this.allCountriesDataList = value["allCountryDataList"];
+      var savedCountryList = value["savedCountryList"] as Set<String>;
+      print(savedCountryList);
+      this.dataList = getDataList(savedCountryList);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: bgColor,
       floatingActionButton: FloatingActionButton(
         backgroundColor: pColor,
-        onPressed: () {
-          Navigator.pushNamed(context, "addCountry");
+        onPressed: () async {
+          // Get changed saved country list
+          var result =
+              await Navigator.pushNamed(context, "addCountry") as List<String>;
+          print(result);
+          setState(() {
+            this.dataList = getDataList(result.toSet());
+          });
         },
         child: Icon(
           Icons.add,
@@ -45,13 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               FutureBuilder(
-                  future: fetchStatistics(),
+                  future: _allData,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      var data = snapshot.data as Map<String, dynamic>;
-                      this.globalDataList =
-                          data["globalDataList"] as List<Map<String, dynamic>>;
-                      this.dataList = data["countryDataList"];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -144,20 +163,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               Text(
                                                 dataList[index]['name'],
+                                                overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors.grey[600]),
                                               ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    dataList.removeAt(index);
-                                                  });
-                                                },
-                                                child: Icon(
-                                                  Icons.cancel,
-                                                  color: Colors.grey[300],
-                                                  size: 16.0,
+                                              Flexible(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      dataList.removeAt(index);
+                                                    });
+                                                  },
+                                                  child: Icon(
+                                                    Icons.cancel,
+                                                    color: Colors.grey[300],
+                                                    size: 16.0,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -177,6 +199,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       );
+                    } else if (snapshot.hasError) {
+                      return Container(
+                        height: MediaQuery.of(context).size.height,
+                        alignment: Alignment.center,
+                        child: Text(snapshot.error.toString()),
+                      );
                     } else {
                       return Container(
                         height: MediaQuery.of(context).size.height,
@@ -190,5 +218,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  List<Map<String, dynamic>> getDataList(Set<String> savedCountryList) {
+    // For countries in savedCountries, add country to data list
+    List<Map<String, dynamic>> dataList = [];
+    for (Map<String, dynamic> country in this.allCountriesDataList) {
+      if (savedCountryList.contains(country["name"])) {
+        dataList.add(country);
+      }
+    }
+    print(dataList);
+    return dataList;
   }
 }
