@@ -117,7 +117,7 @@ class _VaccinationTabState extends State<VaccinationTab>
                                         });
                                       },
                                       child: Text(_date == null
-                                          ? "Pick Start Date"
+                                          ? "Pick Date"
                                           : "${_date!.day}-${_date!.month}-${_date!.year}")),
                                   SizedBox(
                                     height: 10,
@@ -160,9 +160,14 @@ class _VaccinationTabState extends State<VaccinationTab>
                                                   "Vaccine: ${vaccineData[index]["vaccine"]}"),
                                             ));
                                   } else {
-                                    return CircularProgressIndicator();
+                                    return Center(
+                                        child: CircularProgressIndicator());
                                   }
                                 })
+                          ] else ...[
+                            Center(
+                              child: Text(" Select all fields appropriately"),
+                            )
                           ]
                         ],
                       ),
