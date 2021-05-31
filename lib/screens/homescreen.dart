@@ -1,5 +1,5 @@
 import 'package:covid19_tracker/screens/tabs/dashboard_tab.dart';
-import 'package:covid19_tracker/screens/tabs/guidelines_tab.dart';
+import 'package:covid19_tracker/screens/tabs/information_tab.dart';
 import 'package:covid19_tracker/screens/tabs/vaccination_tab.dart';
 import 'package:covid19_tracker/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +32,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icon(Icons.medication),
               ),
               Tab(
-                text: "Guidelines",
+                text: "Information",
                 icon: Icon(Icons.info_outline_rounded),
               ),
             ]),
         body: SafeArea(
           child: TabBarView(
-            children: [DashboardTab(), VaccinationTab(), GuidelinesTab()],
+            children: [DashboardTab(), VaccinationTab(), InformationTab()],
           ),
         ),
       ),
