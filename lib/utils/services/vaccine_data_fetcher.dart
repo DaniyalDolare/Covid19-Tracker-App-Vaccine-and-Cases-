@@ -4,10 +4,8 @@ import 'package:http/http.dart' as http;
 
 Future<List<Map<String, dynamic>>> getStatesData() async {
   final response = await rootBundle.loadString("assets/data/data.json");
-  // Map<String, dynamic> data = jsonDecode(response) as Map<String, dynamic>;
   final statesData =
       List<Map<String, dynamic>>.from(jsonDecode(response)["states"]);
-  // final statesData = data["states"] as List<Map<String, dynamic>>;
   return statesData;
 }
 

@@ -11,7 +11,7 @@ class VaccinationTab extends StatefulWidget {
 class _VaccinationTabState extends State<VaccinationTab>
     with AutomaticKeepAliveClientMixin<VaccinationTab> {
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 
   Future<List<Map<String, dynamic>>>? _dataList;
   List<Map<String, dynamic>> dataList = [];
