@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:covid19_tracker/utils/custom_exception.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
@@ -115,4 +116,30 @@ dynamic _response(http.Response response) {
       throw FetchDataException(
           'Error occured while Communication with Server with StatusCode: ${response.statusCode}');
   }
+}
+
+Future<List<Map<String, dynamic>>> getStatesData() async {
+  final response = await rootBundle.loadString("assets/data/data.json");
+  final statesData =
+      List<Map<String, dynamic>>.from(jsonDecode(response)["states"]);
+  return statesData;
+}
+
+Future<List<Map<String, dynamic>>> getVaccineData(
+    int districtId, DateTime date) async {
+  final Map<String, dynamic> param = {
+    "district_id": districtId.toString(),
+    "date": "${date.day}-${date.month}-${date.year}"
+  };
+  var responseBody;
+
+  final url = Uri.https("cdn-api.co-vin.in",
+      "api/v2/appointment/sessions/public/findByDistrict", param);
+  try {
+    final response = await http.get(url);
+    responseBody = _response(response);
+  } on SocketException {}
+
+  final data = List<Map<String, dynamic>>.from(responseBody["sessions"]);
+  return data;
 }
