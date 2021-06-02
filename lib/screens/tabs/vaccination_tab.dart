@@ -2,6 +2,7 @@ import 'package:covid19_tracker/utils/constants.dart';
 import 'package:covid19_tracker/utils/services/data_fetcher.dart';
 import 'package:covid19_tracker/widgets/custom_top_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class VaccinationTab extends StatefulWidget {
   @override
@@ -153,7 +154,7 @@ class _VaccinationTabState extends State<VaccinationTab>
                                     onPressed: () async {
                                       var date = await showDatePicker(
                                           context: context,
-                                          initialDate: DateTime.now(),
+                                          initialDate: _date ?? DateTime.now(),
                                           firstDate: DateTime.now(),
                                           lastDate: DateTime(
                                               DateTime.now().year + 1));
@@ -244,6 +245,8 @@ class _VaccinationTabState extends State<VaccinationTab>
                                                             bottom:
                                                                 BorderSide()),
                                                         onTap: () {
+                                                          FocusScope.of(context)
+                                                              .unfocus();
                                                           Navigator.pushNamed(
                                                               context,
                                                               "centerDetails",
@@ -300,6 +303,7 @@ class _VaccinationTabState extends State<VaccinationTab>
     if (selectedDistrict != null) {
       this.districtList.clear();
       this.selectedDistrict = null;
+      this.districtId = null;
     }
 
     int stateIndex = stateList.indexOf(value.toString());
@@ -325,6 +329,12 @@ class _VaccinationTabState extends State<VaccinationTab>
           this.getData = true;
           _vaccineData!.then((value) => this.vaccineData = value);
         });
+      } else {
+        // Show toast
+        Fluttertoast.showToast(
+            msg: _date == null
+                ? "Please pick a date!"
+                : "Please select both state and distict!");
       }
     } else {
       // Get data by pin
@@ -337,6 +347,12 @@ class _VaccinationTabState extends State<VaccinationTab>
           this.getData = true;
           _vaccineData!.then((value) => this.vaccineData = value);
         });
+      } else {
+        // Show toast
+        Fluttertoast.showToast(
+            msg: _date == null
+                ? "Please pick a date!"
+                : "Please enter a pincode!");
       }
     }
   }
