@@ -11,7 +11,7 @@ class VaccinationTab extends StatefulWidget {
 class _VaccinationTabState extends State<VaccinationTab>
     with AutomaticKeepAliveClientMixin<VaccinationTab> {
   @override
-  bool get wantKeepAlive => false;
+  bool get wantKeepAlive => true;
 
   Future<List<Map<String, dynamic>>>? _dataList;
   List<Map<String, dynamic>> dataList = [];
@@ -195,19 +195,67 @@ class _VaccinationTabState extends State<VaccinationTab>
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     if (vaccineData.isNotEmpty) {
-                                      return ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          itemCount: vaccineData.length,
-                                          itemBuilder: (context, index) =>
-                                              ListTile(
-                                                title: Text(
-                                                  vaccineData[index]["name"],
-                                                ),
-                                                subtitle: Text(
-                                                    "Vaccine: ${vaccineData[index]["vaccine"]}"),
-                                              ));
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "Center List",
+                                              style: TextStyle(
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.all(4.0),
+                                            color: Colors.white,
+                                            child: ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount: vaccineData.length,
+                                                itemBuilder: (context, index) =>
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          left: 8.0,
+                                                          right: 8.0),
+                                                      decoration: BoxDecoration(
+                                                          border: Border(
+                                                              bottom: BorderSide(
+                                                                  width: 1.0,
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .shade400))),
+                                                      child: ListTile(
+                                                        trailing: Icon(Icons
+                                                            .navigate_next),
+                                                        title: Text(
+                                                          vaccineData[index]
+                                                              ["name"],
+                                                        ),
+                                                        subtitle: Text(
+                                                            "Vaccine: ${vaccineData[index]["vaccine"]}"),
+                                                        tileColor: Colors.white,
+                                                        shape: Border(
+                                                            bottom:
+                                                                BorderSide()),
+                                                        onTap: () {
+                                                          Navigator.pushNamed(
+                                                              context,
+                                                              "centerDetails",
+                                                              arguments: {
+                                                                "data":
+                                                                    vaccineData[
+                                                                        index]
+                                                              });
+                                                        },
+                                                      ),
+                                                    )),
+                                          ),
+                                        ],
+                                      );
                                     } else {
                                       return Center(
                                         child:
