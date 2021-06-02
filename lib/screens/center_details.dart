@@ -1,3 +1,4 @@
+import 'package:covid19_tracker/utils/constants.dart';
 import 'package:covid19_tracker/widgets/custom_top_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ class CenterDetails extends StatelessWidget {
     var data = ModalRoute.of(context)!.settings.arguments as Map;
     centerData = data["data"];
     return Scaffold(
+      backgroundColor: bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Stack(
@@ -48,6 +50,10 @@ class CenterDetails extends StatelessWidget {
                             TextFormField(
                               enabled: false,
                               initialValue: centerData["address"],
+                              maxLines:
+                                  centerData["address"].toString().length < 35
+                                      ? 1
+                                      : 2,
                               decoration: InputDecoration(
                                 labelText: "Address",
                                 labelStyle: TextStyle(
