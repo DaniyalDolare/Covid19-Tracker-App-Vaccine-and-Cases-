@@ -138,7 +138,9 @@ Future<List<Map<String, dynamic>>> getVaccineDataByDistrict(
   try {
     final response = await http.get(url);
     responseBody = _response(response);
-  } on SocketException {}
+  } on SocketException {
+    throw FetchDataException("No internet connection");
+  }
 
   final data = List<Map<String, dynamic>>.from(responseBody["sessions"]);
   return data;
@@ -157,7 +159,9 @@ Future<List<Map<String, dynamic>>> getVaccineDataByPin(
   try {
     final response = await http.get(url);
     responseBody = _response(response);
-  } on SocketException {}
+  } on SocketException {
+    throw FetchDataException("No internet connection");
+  }
 
   final data = List<Map<String, dynamic>>.from(responseBody["sessions"]);
   return data;
