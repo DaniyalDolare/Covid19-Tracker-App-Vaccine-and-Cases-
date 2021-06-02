@@ -91,6 +91,8 @@ class _VaccinationTabState extends State<VaccinationTab>
                                                             20))),
                                             onPressed: () {
                                               setState(() {
+                                                this.getData = false;
+                                                this.vaccineData.clear();
                                                 selectedButton = value;
                                               });
                                             },
@@ -262,6 +264,10 @@ class _VaccinationTabState extends State<VaccinationTab>
                                             Text("No vaccine data available"),
                                       );
                                     }
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text(snapshot.error.toString()),
+                                    );
                                   } else {
                                     return Center(
                                         child: CircularProgressIndicator());
@@ -315,6 +321,10 @@ class _VaccinationTabState extends State<VaccinationTab>
       //Get data by district
       if (_date != null && districtId != null) {
         this._vaccineData = getVaccineDataByDistrict(districtId!, _date!);
+        setState(() {
+          this.getData = true;
+          _vaccineData!.then((value) => this.vaccineData = value);
+        });
       }
     } else {
       // Get data by pin
@@ -323,11 +333,11 @@ class _VaccinationTabState extends State<VaccinationTab>
         print(pinController.text);
         this._vaccineData =
             getVaccineDataByPin(pinController.text.toString(), _date!);
+        setState(() {
+          this.getData = true;
+          _vaccineData!.then((value) => this.vaccineData = value);
+        });
       }
     }
-    setState(() {
-      this.getData = true;
-      _vaccineData!.then((value) => this.vaccineData = value);
-    });
   }
 }
