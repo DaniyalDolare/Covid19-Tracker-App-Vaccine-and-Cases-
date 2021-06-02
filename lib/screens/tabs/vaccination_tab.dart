@@ -1,5 +1,5 @@
 import 'package:covid19_tracker/utils/constants.dart';
-import 'package:covid19_tracker/utils/services/vaccine_data_fetcher.dart';
+import 'package:covid19_tracker/utils/services/data_fetcher.dart';
 import 'package:covid19_tracker/widgets/custom_top_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +11,7 @@ class VaccinationTab extends StatefulWidget {
 class _VaccinationTabState extends State<VaccinationTab>
     with AutomaticKeepAliveClientMixin<VaccinationTab> {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 
   Future<List<Map<String, dynamic>>>? _dataList;
   List<Map<String, dynamic>> dataList = [];
@@ -23,6 +23,10 @@ class _VaccinationTabState extends State<VaccinationTab>
   DateTime? _date;
   Future<List<Map<String, dynamic>>>? _vaccineData;
   List<Map<String, dynamic>> vaccineData = [];
+  bool getData = false;
+  String selectedButton = "Find by district";
+  List<String> buttonList = ["Find by district", "Find by pin"];
+  TextEditingController pinController = TextEditingController();
 
   @override
   void initState() {
@@ -68,73 +72,116 @@ class _VaccinationTabState extends State<VaccinationTab>
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
                                 children: [
-                                  DropdownButton(
-                                    isExpanded: true,
-                                    value: selectedState,
-                                    hint: Text(" State"),
-                                    items: stateList
-                                        .map((value) => DropdownMenuItem(
-                                            child: Text(" $value"),
-                                            value: value))
-                                        .toList(),
-                                    onChanged: getDistrictList,
-                                  ),
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: buttonList.map((value) {
+                                        Color fillColor = bgColor;
+                                        Color textColor = Colors.black;
+                                        if (value == selectedButton) {
+                                          fillColor = pColor;
+                                          textColor = Colors.white;
+                                        }
+                                        return ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                primary: fillColor,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20))),
+                                            onPressed: () {
+                                              setState(() {
+                                                selectedButton = value;
+                                              });
+                                            },
+                                            child: Text(
+                                              value,
+                                              style:
+                                                  TextStyle(color: textColor),
+                                            ));
+                                      }).toList()),
                                   SizedBox(
                                     height: 10,
                                   ),
-                                  DropdownButton(
-                                    isExpanded: true,
-                                    value: selectedDistrict,
-                                    hint: Text(" District"),
-                                    items: districtList
-                                        .map((value) => DropdownMenuItem(
-                                              child: Text(
-                                                  " ${value["district_name"]}"),
-                                              value: value,
-                                            ))
-                                        .toList(),
-                                    onChanged: (dynamic value) {
-                                      print(value);
-                                      setState(() {
-                                        selectedDistrict = value;
-                                        districtId = value["district_id"];
-                                      });
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  TextButton(
-                                      onPressed: () async {
-                                        var date = await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime.now(),
-                                            lastDate: DateTime(
-                                                DateTime.now().year + 1));
+                                  if (selectedButton == "Find by district") ...[
+                                    DropdownButton(
+                                      isExpanded: true,
+                                      value: selectedState,
+                                      hint: Text(" State"),
+                                      items: stateList
+                                          .map((value) => DropdownMenuItem(
+                                              child: Text(" $value"),
+                                              value: value))
+                                          .toList(),
+                                      onChanged: getDistrictList,
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    DropdownButton(
+                                      isExpanded: true,
+                                      value: selectedDistrict,
+                                      hint: Text(" District"),
+                                      items: districtList
+                                          .map((value) => DropdownMenuItem(
+                                                child: Text(
+                                                    " ${value["district_name"]}"),
+                                                value: value,
+                                              ))
+                                          .toList(),
+                                      onChanged: (dynamic value) {
                                         setState(() {
-                                          _date = date;
+                                          selectedDistrict = value;
+                                          districtId = value["district_id"];
                                         });
                                       },
-                                      child: Text(_date == null
+                                    ),
+                                  ],
+                                  if (selectedButton == "Find by pin")
+                                    TextField(
+                                      controller: pinController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                          hintText: "Enter pin code"),
+                                    ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  OutlinedButton(
+                                    onPressed: () async {
+                                      var date = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(
+                                              DateTime.now().year + 1));
+                                      setState(() {
+                                        _date = date;
+                                      });
+                                    },
+                                    child: Text(
+                                      _date == null
                                           ? "Pick Date"
-                                          : "${_date!.day}-${_date!.month}-${_date!.year}")),
+                                          : "${_date!.day}-${_date!.month}-${_date!.year}",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20))),
+                                  ),
                                   SizedBox(
                                     height: 10,
                                   ),
                                   ElevatedButton(
-                                      onPressed: () {
-                                        if (_date != null &&
-                                            districtId != null) {
-                                          _vaccineData = getVaccineData(
-                                              districtId!, _date!);
-                                          setState(() {
-                                            _vaccineData!.then((value) =>
-                                                this.vaccineData = value);
-                                          });
-                                        }
-                                      },
-                                      child: Text("Get Vaccination Details")),
+                                    onPressed: getVaccineData,
+                                    child: Text("Get Vaccination Details",
+                                        style: TextStyle(color: Colors.white)),
+                                    style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20))),
+                                  ),
                                   SizedBox(
                                     height: 20,
                                   ),
@@ -142,23 +189,31 @@ class _VaccinationTabState extends State<VaccinationTab>
                               ),
                             ),
                           ),
-                          if (vaccineData.isNotEmpty) ...[
+                          if (getData) ...[
                             FutureBuilder(
                                 future: _vaccineData,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    return ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: vaccineData.length,
-                                        itemBuilder: (context, index) =>
-                                            ListTile(
-                                              title: Text(
-                                                vaccineData[index]["name"],
-                                              ),
-                                              subtitle: Text(
-                                                  "Vaccine: ${vaccineData[index]["vaccine"]}"),
-                                            ));
+                                    if (vaccineData.isNotEmpty) {
+                                      return ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemCount: vaccineData.length,
+                                          itemBuilder: (context, index) =>
+                                              ListTile(
+                                                title: Text(
+                                                  vaccineData[index]["name"],
+                                                ),
+                                                subtitle: Text(
+                                                    "Vaccine: ${vaccineData[index]["vaccine"]}"),
+                                              ));
+                                    } else {
+                                      return Center(
+                                        child:
+                                            Text("No vaccine data available"),
+                                      );
+                                    }
                                   } else {
                                     return Center(
                                         child: CircularProgressIndicator());
@@ -173,7 +228,9 @@ class _VaccinationTabState extends State<VaccinationTab>
                       ),
                     );
                   } else {
-                    return Center(
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      alignment: Alignment.center,
                       child: CircularProgressIndicator(),
                     );
                   }
@@ -184,7 +241,13 @@ class _VaccinationTabState extends State<VaccinationTab>
     );
   }
 
-  getDistrictList(dynamic value) {
+  void getDistrictList(dynamic value) {
+    //Clear the previous district data
+    if (selectedDistrict != null) {
+      this.districtList.clear();
+      this.selectedDistrict = null;
+    }
+
     int stateIndex = stateList.indexOf(value.toString());
     List<Map<String, dynamic>> _districtList = [];
     for (Map<String, dynamic> data in dataList[stateIndex]["districts"]) {
@@ -193,10 +256,30 @@ class _VaccinationTabState extends State<VaccinationTab>
         "district_id": data["district_id"]
       });
     }
-    print(_districtList);
     setState(() {
       selectedState = value.toString();
       this.districtList = _districtList;
+    });
+  }
+
+  getVaccineData() {
+    if (selectedButton == buttonList[0]) {
+      //Get data by district
+      if (_date != null && districtId != null) {
+        this._vaccineData = getVaccineDataByDistrict(districtId!, _date!);
+      }
+    } else {
+      // Get data by pin
+
+      if (_date != null && pinController.text.isNotEmpty) {
+        print(pinController.text);
+        this._vaccineData =
+            getVaccineDataByPin(pinController.text.toString(), _date!);
+      }
+    }
+    setState(() {
+      this.getData = true;
+      _vaccineData!.then((value) => this.vaccineData = value);
     });
   }
 }

@@ -125,7 +125,7 @@ Future<List<Map<String, dynamic>>> getStatesData() async {
   return statesData;
 }
 
-Future<List<Map<String, dynamic>>> getVaccineData(
+Future<List<Map<String, dynamic>>> getVaccineDataByDistrict(
     int districtId, DateTime date) async {
   final Map<String, dynamic> param = {
     "district_id": districtId.toString(),
@@ -135,6 +135,25 @@ Future<List<Map<String, dynamic>>> getVaccineData(
 
   final url = Uri.https("cdn-api.co-vin.in",
       "api/v2/appointment/sessions/public/findByDistrict", param);
+  try {
+    final response = await http.get(url);
+    responseBody = _response(response);
+  } on SocketException {}
+
+  final data = List<Map<String, dynamic>>.from(responseBody["sessions"]);
+  return data;
+}
+
+Future<List<Map<String, dynamic>>> getVaccineDataByPin(
+    String pin, DateTime date) async {
+  final Map<String, dynamic> param = {
+    "pincode": pin,
+    "date": "${date.day}-${date.month}-${date.year}"
+  };
+  var responseBody;
+
+  final url = Uri.https("cdn-api.co-vin.in",
+      "api/v2/appointment/sessions/public/findByPin", param);
   try {
     final response = await http.get(url);
     responseBody = _response(response);
