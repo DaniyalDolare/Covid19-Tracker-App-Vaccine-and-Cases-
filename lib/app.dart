@@ -1,4 +1,5 @@
 import 'package:covid19_tracker/screens/add_country.dart';
+import 'package:covid19_tracker/screens/center_details.dart';
 import 'package:covid19_tracker/screens/homescreen.dart';
 import 'package:covid19_tracker/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,8 @@ class MyApp extends StatelessWidget {
         ),
         routes: {
           "homescreen": (context) => HomeScreen(),
-          "addCountry": (context) => AddCountry()
+          "addCountry": (context) => AddCountry(),
+          "centerDetails": (context) => CenterDetails()
         },
         home: HomeScreen());
   }
