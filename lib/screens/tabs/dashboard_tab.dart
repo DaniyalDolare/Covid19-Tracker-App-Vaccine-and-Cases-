@@ -26,13 +26,13 @@ class _DashboardTabState extends State<DashboardTab>
     super.initState();
 
     _allData = fetchStatistics();
+
     // Set state variables values
     _allData!.then((value) {
       this.globalDataList =
           value["globalDataList"] as List<Map<String, dynamic>>;
       this.allCountriesDataList = value["allCountryDataList"];
       this.savedCountryList = value["savedCountryList"] as List<String>;
-      print(savedCountryList);
       this.dataList = getDataList(savedCountryList.toSet());
     });
   }
@@ -82,6 +82,11 @@ class _DashboardTabState extends State<DashboardTab>
                           padding: const EdgeInsets.only(top: 8.0, left: 10.0),
                           child: Text("Last updated on ${DateTime.now()}"),
                         ),
+                        if (dataList.isEmpty) ...[
+                          SizedBox(
+                              height: MediaQuery.of(context).size.height / 2,
+                              child: Center(child: Text("Add a country")))
+                        ],
                         _buildGridView(),
                       ],
                     );
@@ -209,7 +214,6 @@ class _DashboardTabState extends State<DashboardTab>
     SharedPreferences pref = await SharedPreferences.getInstance();
     savedCountryList.remove(dataList[index]["name"]);
     await pref.setStringList("savedCountries", savedCountryList);
-    print("updated:$savedCountryList");
     setState(() {
       dataList.removeAt(index);
     });
@@ -234,7 +238,6 @@ class _DashboardTabState extends State<DashboardTab>
         dataList.add(country);
       }
     }
-    print(dataList);
     return dataList;
   }
 }
